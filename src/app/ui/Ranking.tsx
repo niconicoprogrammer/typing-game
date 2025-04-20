@@ -1,22 +1,62 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { createClient } from '@/app/lib/supabase/client';
+
 type RankingProps = {
   onBack: () => void;
 };
 
-export default function Ranking({ onBack }: RankingProps) {
-  return (
-    <div className="text-center space-y-6">
-      <h2 className="text-2xl font-bold mb-4">🏆 ランキング</h2>
+type ScoreEntry = {
+  id: number;
+  user_id: string;
+  score: number;
+  created_at: string;
+};
 
-      {/* ランキング内容は後でSupabaseから取得 */}
-      <p className="text-gray-300">（ここに上位スコア一覧が表示されます）</p>
+export default function Ranking({ onBack }: RankingProps) {
+  const [scores, setScores] = useState<ScoreEntry[]>([]);
+
+  useEffect(() => {
+    const fetchScores = async () => {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from('scores')
+        .select('*')
+        .order('score', { ascending: true }) // スコアの低い順（速い順）
+        .limit(20);
+
+      if (error) {
+        console.error('Failed to fetch scores:', error.message);
+      } else {
+        setScores(data);
+      }
+    };
+
+    fetchScores();
+  }, []);
+
+  return (
+    <div className="text-center space-y-6 font-mono text-green-400">
+      <h2 className="text-2xl font-bold tracking-wider mb-4">🏆 RANKING</h2>
+
+      {scores.length > 0 ? (
+        <ul className="space-y-1 text-sm">
+          {scores.map((entry, index) => (
+            <li key={entry.id}>
+              #{index + 1} – {entry.score.toFixed(2)}s
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-green-600 text-sm">No scores available yet.</p>
+      )}
 
       <button
         onClick={onBack}
-        className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded"
+        className="px-6 py-2 border border-green-700 hover:bg-green-700 hover:text-black transition rounded shadow-md"
       >
-        ゲームに戻る
+        BACK
       </button>
     </div>
   );

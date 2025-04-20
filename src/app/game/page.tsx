@@ -8,28 +8,45 @@ import Result from '@/app/ui/Result';
 
 type GameState = 'ready' | 'playing' | 'finished' | 'ranking';
 
+async function submitScore(score: number) {
+  console.log('🟢 Submitting score:', score); // ← 追加
+
+  const res = await fetch('/api/submit-score', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ score }),
+  });
+
+  console.log('🟡 Server response:', res.status); // ← 追加
+}
+
+
 export default function GamePage() {
   const [startTime, setStartTime] = useState<number | null>(null);
   const [endTime, setEndTime] = useState<number | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [gameState, setGameState] = useState<GameState>('ready');
 
-  // 経過時間を毎秒更新（プレイ中のみ）
+  // 経過時間の更新
   useEffect(() => {
     if (startTime && !endTime) {
       const interval = setInterval(() => {
         setElapsedTime(Math.floor((Date.now() - startTime) / 1000));
       }, 1000);
-
       return () => clearInterval(interval);
     }
   }, [startTime, endTime]);
 
-  // スコア（終了後にだけ表示される）
+  // スコア計算
   const score =
-    startTime && endTime
-      ? ((endTime - startTime) / 1000).toFixed(2)
-      : null;
+    startTime && endTime ? ((endTime - startTime) / 1000).toFixed(2) : null;
+
+  // スコア送信（finished 直後）
+  useEffect(() => {
+    if (gameState === 'finished' && score) {
+      submitScore(Number(score)); // 小数で送信
+    }
+  }, [gameState, score]);
 
   const resetGame = () => {
     setStartTime(null);
@@ -38,34 +55,33 @@ export default function GamePage() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center bg-black text-white px-6 py-8">
-      <h1 className="text-3xl mb-6 font-bold">Typing Game</h1>
-
+    <main className="min-h-screen bg-black text-green-400 font-mono flex flex-col items-center justify-center px-4 py-8 space-y-6">
       {gameState === 'ready' && (
         <StartScreen
-            onStart={() => {
+          onStart={() => {
             resetGame();
             setGameState('playing');
-            }}
-            onRanking={() => {
+          }}
+          onRanking={() => {
             resetGame();
             setGameState('ranking');
-            }}
+          }}
         />
       )}
 
-      {gameState === 'ranking' && 
+      {gameState === 'ranking' && (
         <Ranking
-            onBack={() => {
+          onBack={() => {
             resetGame();
             setGameState('ready');
-            }}
-      />}
+          }}
+        />
+      )}
 
       {gameState === 'playing' && (
         <>
           <TypingGame
-            key={startTime} // 再マウントさせて入力状態リセット
+            key={startTime}
             startTime={startTime}
             setStartTime={setStartTime}
             setEndTime={(time) => {
@@ -77,7 +93,9 @@ export default function GamePage() {
               setGameState('ready');
             }}
           />
-          <p className="text-yellow-400 mt-4">経過時間: {elapsedTime} 秒</p>
+          <p className="text-sm mt-4 text-yellow-400">
+            TIME ELAPSED: <span className="font-bold">{elapsedTime}s</span>
+          </p>
         </>
       )}
 

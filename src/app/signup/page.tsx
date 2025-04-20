@@ -1,13 +1,13 @@
 'use client'
 
 import Link from 'next/link';
-import { login } from '@/app/lib/actions';
+import { signup } from '@/app/lib/actions';
 import { useActionState } from 'react';
 import { useState } from 'react';
 
-export default function LoginPage() {
+export default function SignupPage() {
   const [email, setEmail] = useState('');
-  const [errorMessage, formAction, isPending] = useActionState(login, undefined);
+  const [errorMessage, formAction, isPending] = useActionState(signup, undefined);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black px-4 font-mono">
@@ -16,7 +16,7 @@ export default function LoginPage() {
         className="bg-black text-green-400 p-10 rounded border border-green-700 shadow-[0_0_10px_#00ff00] w-full max-w-md space-y-6"
       >
         <h1 className="text-3xl text-green-400 text-center font-bold tracking-widest">
-          SYSTEM LOGIN
+          SYSTEM SIGNUP
         </h1>
 
         {errorMessage && (
@@ -54,13 +54,13 @@ export default function LoginPage() {
           disabled={isPending}
           className="w-full bg-green-500 hover:bg-green-400 text-black font-bold py-2 px-4 rounded-sm transition shadow-md hover:shadow-[0_0_10px_#00ff00] disabled:opacity-50"
         >
-          {isPending ? 'Accessing...' : 'LOGIN'}
+          {isPending ? 'Creating...' : 'SIGN UP'}
         </button>
 
         <div className="text-center text-xs text-green-600 mt-4">
-          Don&apos;t have an account?{' '}
-          <Link href="/signup" className="underline text-green-400 hover:text-green-200 font-semibold">
-            CREATE ACCOUNT
+          Already have an account?{' '}
+          <Link href="/login" className="underline text-green-400 hover:text-green-200 font-semibold">
+            LOGIN
           </Link>
         </div>
       </form>
