@@ -10,6 +10,7 @@ type RankingProps = {
 type ScoreEntry = {
   id: number;
   user_id: string;
+  user_name: string; // ← 追加
   score: number;
   created_at: string;
 };
@@ -22,14 +23,14 @@ export default function Ranking({ onBack }: RankingProps) {
       const supabase = createClient();
       const { data, error } = await supabase
         .from('scores')
-        .select('*')
+        .select('id, user_id, user_name, score, created_at') // ← 明示的に指定
         .order('score', { ascending: true }) // スコアの低い順（速い順）
         .limit(20);
 
       if (error) {
         console.error('Failed to fetch scores:', error.message);
       } else {
-        setScores(data);
+        setScores(data as ScoreEntry[]);
       }
     };
 
@@ -44,7 +45,7 @@ export default function Ranking({ onBack }: RankingProps) {
         <ul className="space-y-1 text-sm">
           {scores.map((entry, index) => (
             <li key={entry.id}>
-              #{index + 1} – {entry.score.toFixed(2)}s
+              #{index + 1} – <span className="font-bold">{entry.user_name}</span> – {entry.score.toFixed(2)}s
             </li>
           ))}
         </ul>

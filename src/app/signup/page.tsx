@@ -6,7 +6,7 @@ import { useActionState } from 'react';
 import { useState } from 'react';
 
 export default function SignupPage() {
-  const [email, setEmail] = useState('');
+  const [userName, setUserName] = useState('');
   const [errorMessage, formAction, isPending] = useActionState(signup, undefined);
 
   return (
@@ -26,14 +26,14 @@ export default function SignupPage() {
         )}
 
         <div>
-          <label htmlFor="email" className="block text-sm mb-1">Email</label>
+          <label htmlFor="userName" className="block text-sm mb-1">Username</label>
           <input
-            id="email"
-            name="email"
-            type="email"
+            id="userName"
+            name="userName"
+            type="text"
             required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
             className="w-full px-3 py-2 bg-black text-green-300 border border-green-700 rounded-sm focus:outline-none focus:ring-2 focus:ring-green-400"
           />
         </div>

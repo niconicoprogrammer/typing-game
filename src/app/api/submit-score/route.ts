@@ -1,4 +1,3 @@
-// app/api/submit-score/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/app/lib/supabase/server';
 
@@ -19,8 +18,12 @@ export async function POST(req: NextRequest) {
   const { score } = await req.json();
   console.log('📥 Received score:', score);
 
+  // email から @より前を username として使う
+  const username = user.email?.split('@')[0] ?? 'unknown';
+
   const { error } = await supabase.from('scores').insert({
     user_id: user.id,
+    user_name: username, // ← 追加！
     score,
   });
 
