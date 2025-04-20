@@ -29,7 +29,7 @@ export default function TypingGame({
         const data = await res.json();
         setWords(data);
       } catch (err) {
-        setError('Failed to fetch words.');
+        setError(error);
       } finally {
         setLoading(false);
       }
