@@ -31,9 +31,11 @@ export default function GamePage() {
     setWordError('');
     try {
       const res = await fetch('https://random-word-api.herokuapp.com/word?number=10&length=5');
+      console.log('[Fetch] Response status:', res.status); // ← ✅ resを使用
       const data = await res.json();
       setWords(data);
     } catch (err) {
+      console.error('[Fetch] Error occurred:', err); // ← ✅ errを使用
       setWordError('Failed to fetch words.');
     } finally {
       setLoadingWords(false);
