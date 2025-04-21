@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 
 type Props = {
+  words: string[]; // ✅ 外から受け取る
   startTime: number | null;
   setStartTime: React.Dispatch<React.SetStateAction<number | null>>;
   setEndTime: React.Dispatch<React.SetStateAction<number | null>>;
@@ -10,50 +11,21 @@ type Props = {
 };
 
 export default function TypingGame({
+  words,
   startTime,
   setStartTime,
   setEndTime,
   onBack,
 }: Props) {
-  const [words, setWords] = useState<string[]>([]);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [input, setInput] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
-  // ✅ 単語取得（5文字 × 10個）
+  // ✅ 開始時間の記録（初回のみ）
   useEffect(() => {
-    const fetchWords = async () => {
-      try {
-        const res = await fetch('https://random-word-api.herokuapp.com/word?number=10&length=5');
-        const data = await res.json();
-        setWords(data);
-      } catch (err) {
-        console.error(err); // 👈 一応使ってることにする
-        setError('Failed to fetch words. Please try again later.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchWords();
-  }, []);
-
-  // ✅ 開始時間の記録（取得できたあと）
-  useEffect(() => {
-    if (startTime === null && words.length > 0) {
+    if (!startTime) {
       setStartTime(Date.now());
     }
-  }, [startTime, words]);
-
-  // ✅ ローディングやエラー時はUI表示しない
-  if (loading || words.length === 0 ) {
-    return <p className="text-green-400 text-center">Loading words...</p>;
-  }
-
-  if (error) {
-    return <p className="text-red-500 text-center">{error}</p>;
-  }
+  }, []);
 
   const currentWord = words[currentWordIndex];
 
@@ -76,10 +48,7 @@ export default function TypingGame({
   return (
     <div className="text-center font-mono text-green-400">
       <div className="text-4xl mb-6 tracking-wide">
-        {currentWord.split('').map((char, i) => {
-          console.log('currentWord:', currentWord)
-          console.log('words:', words)
-          console.log('currentWordIndex:', currentWordIndex)
+        {currentWord?.split('').map((char, i) => {
           let color = 'text-gray-600';
           if (i < input.length) {
             color = char === input[i] ? 'text-green-400' : 'text-red-500';
