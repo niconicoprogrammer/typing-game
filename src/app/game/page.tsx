@@ -14,6 +14,8 @@ async function submitScore(score: number) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ score }),
   });
+
+  console.log('submitScore response status:', res.status); // ✅ これで使ってる判定になる
 }
 
 export default function GamePage() {
